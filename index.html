@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Discord Webhook Studio | Modern Messenger</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0f1e 0%, #0c1222 100%);
+            font-family: 'Inter', sans-serif;
+            color: #f0f3fa;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+        }
+
+        /* container utama */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* header modern */
+        .hero {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .hero h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #e0e7ff, #a5b4fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .hero h1 i {
+            background: none;
+            color: #7289da;
+            font-size: 2rem;
+        }
+        .hero p {
+            color: #8e9aaf;
+            max-width: 600px;
+            margin: 0.75rem auto 0;
+            font-weight: 400;
+        }
+
+        /* two column layout */
+        .dashboard-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        .form-panel {
+            flex: 1.2;
+            min-width: 280px;
+            background: rgba(18, 25, 45, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 32px;
+            border: 1px solid rgba(72, 87, 128, 0.3);
+            padding: 1.8rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.4);
+        }
+        .preview-panel {
+            flex: 1;
+            min-width: 330px;
+            background: rgba(13, 19, 33, 0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 32px;
+            border: 1px solid rgba(72, 87, 128, 0.35);
+            padding: 1.8rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* form styling */
+        .input-group {
+            margin-bottom: 1.4rem;
+        }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #b9c7e8;
+            margin-bottom: 0.5rem;
+        }
+        label i {
+            width: 20px;
+            color: #7289da;
+        }
+        input, textarea, select {
+            width: 100%;
+            background: #0e1428;
+            border: 1px solid #2a2f46;
+            border-radius: 20px;
+            padding: 12px 16px;
+            font-family: 'Inter', monospace;
+            font-size: 0.9rem;
+            color: #eef2ff;
+            transition: all 0.2s ease;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #7289da;
+            box-shadow: 0 0 0 3px rgba(114, 137, 218, 0.3);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+        .row-2col {
+            display: flex;
+            gap: 12px;
+        }
+        .row-2col > div {
+            flex: 1;
+        }
+        hr {
+            margin: 1.2rem 0;
+            border-color: #2a2f46;
+        }
+
+        /* switch & mention */
+        .mention-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0b1022;
+            padding: 10px 16px;
+            border-radius: 32px;
+            margin: 1rem 0;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 26px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #2f354e;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #7289da;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* buttons */
+        .btn-send {
+            background: linear-gradient(95deg, #5865f2, #4752c4);
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.3);
+            margin-top: 12px;
+        }
+        .btn-send:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(95deg, #6c7aff, #5b62e0);
+            box-shadow: 0 12px 24px rgba(88, 101, 242, 0.5);
+        }
+        .reset-btn {
+            background: transparent;
+            border: 1px solid #4a5178;
+            border-radius: 40px;
+            padding: 8px 18px;
+            color: #b9c3e6;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .reset-btn:hover {
+            background: #1f253e;
+            border-color: #7289da;
+            color: white;
+        }
+
+        /* preview discord */
+        .discord-card {
+            background: #1e253f;
+            border-radius: 18px;
+            overflow: hidden;
+            margin-top: 1rem;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+        }
+        .embed-header {
+            padding: 16px 18px 8px 18px;
+            border-left: 6px solid #5865f2;
+            background: #191e36;
+        }
+        .embed-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #eef2ff;
+            margin-bottom: 6px;
+        }
+        .embed-desc {
+            font-size: 0.9rem;
+            color: #cdd9ff;
+            line-height: 1.4;
+        }
+        .embed-thumb {
+            float: right;
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 12px;
+            margin-left: 16px;
+            object-fit: cover;
+        }
+        .embed-image {
+            margin-top: 12px;
+            border-radius: 12px;
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            background: #0f1328;
+        }
+        .embed-footer {
+            padding: 12px 18px;
+            border-top: 1px solid #2f3557;
+            font-size: 0.7rem;
+            color: #a5b1da;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .mention-badge {
+            background: #5865f2;
+            padding: 2px 8px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .status-msg {
+            margin-top: 20px;
+            background: #0a0f1c;
+            border-radius: 24px;
+            padding: 12px;
+            font-size: 0.8rem;
+            text-align: center;
+            border-left: 4px solid #5865f2;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h3.panel-title {
+            font-size: 1.25rem;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        @media (max-width: 780px) {
+            body {
+                padding: 1rem;
+            }
+            .form-panel, .preview-panel {
+                padding: 1.3rem;
+            }
+            .hero h1 {
+                font-size: 1.9rem;
+            }
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="hero">
+        <h1><i class="fab fa-discord"></i> Webhook Forge</h1>
+        <p>Desain & kirim embed kaya ke Discord — modern, realtime preview, dukungan mention, gambar, dan footer.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Panel Form / Input -->
+        <div class="form-panel">
+            <h3 class="panel-title"><i class="fas fa-pen-ruler"></i> Konfigurasi Webhook</h3>
+            <div class="input-group">
+                <label><i class="fas fa-link"></i> Webhook URL</label>
+                <input type="url" id="webhookUrl" placeholder="https://discord.com/api/webhooks/..." value="">
+                <small style="color:#7e8ab6; font-size: 12px;">Masukkan URL webhook Discord kamu</small>
+            </div>
+            <hr>
+            <h3 class="panel-title" style="margin-top: 10px;"><i class="fas fa-layer-group"></i> Embed Konten</h3>
+            <div class="input-group">
+                <label><i class="fas fa-heading"></i> Judul Embed</label>
+                <input type="text" id="embedTitle" placeholder="Judul keren...">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-paragraph"></i> Deskripsi Embed</label>
+                <textarea id="embedDesc" rows="3" placeholder="Deskripsi lengkap dari embed..."></textarea>
+            </div>
+            <div class="row-2col">
+                <div>
+                    <label><i class="fas fa-image"></i> Thumbnail URL</label>
+                    <input type="text" id="thumbUrl" placeholder="https://... (gambar kecil)">
+                </div>
+                <div>
+                    <label><i class="fas fa-photo-video"></i> Image URL</label>
+                    <input type="text" id="imageUrl" placeholder="https://... (gambar besar)">
+                </div>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-text-height"></i> Footer Teks</label>
+                <input type="text" id="footerText" placeholder="Footer kustom...">
+            </div>
+            <div class="mention-row">
+                <span><i class="fas fa-at"></i> Mention Everyone / Here</span>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="mentionToggle">
+                    <span class="slider"></span>
+                </div>
+            </div>
+            <div class="flex-between">
+                <button class="reset-btn" id="resetPreviewBtn"><i class="fas fa-undo-alt"></i> Reset Preview</button>
+                <button class="reset-btn" id="fillExampleBtn"><i class="fas fa-flask"></i> Contoh Isi</button>
+            </div>
+            <button class="btn-send" id="sendWebhookBtn"><i class="fab fa-discord"></i> Kirim ke Discord</button>
+            <div id="responseMessage" class="status-msg">✨ Siap mengirim pesan embed ke server mu.</div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="preview-panel">
+            <h3 class="panel-title"><i class="fas fa-eye"></i> Live Preview Embed</h3>
+            <div id="livePreviewContainer">
+                <!-- akan diisi javascript preview dinamis -->
+                <div class="discord-card">
+                    <div class="embed-header">
+                        <div class="embed-title" id="previewTitle">Judul Embed</div>
+                        <div class="embed-desc" id="previewDesc">Deskripsi akan muncul disini ...</div>
+                        <img id="previewThumb" class="embed-thumb" style="display: none;" alt="thumbnail">
+                        <div style="clear: both;"></div>
+                        <img id="previewImage" class="embed-image" style="display: none;" alt="embed image">
+                    </div>
+                    <div class="embed-footer" id="previewFooter">
+                        <i class="fas fa-info-circle"></i> <span id="footerTextPreview">footer</span>
+                        <span id="mentionPreviewTag" style="margin-left: auto;"></span>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 12px; font-size: 12px; text-align: center; opacity: 0.7;">
+                <i class="fas fa-sync-alt"></i> Preview realtime berdasarkan input
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Elemen input
+    const webhookUrlInput = document.getElementById('webhookUrl');
+    const titleInput = document.getElementById('embedTitle');
+    const descInput = document.getElementById('embedDesc');
+    const thumbInput = document.getElementById('thumbUrl');
+    const imageInput = document.getElementById('imageUrl');
+    const footerInput = document.getElementById('footerText');
+    const mentionToggle = document.getElementById('mentionToggle');
+
+    // Elemen preview
+    const previewTitleSpan = document.getElementById('previewTitle');
+    const previewDescSpan = document.getElementById('previewDesc');
+    const previewThumbImg = document.getElementById('previewThumb');
+    const previewImageImg = document.getElementById('previewImage');
+    const footerTextSpan = document.getElementById('footerTextPreview');
+    const mentionPreviewSpan = document.getElementById('mentionPreviewTag');
+
+    // tombol
+    const sendBtn = document.getElementById('sendWebhookBtn');
+    const resetPreviewBtn = document.getElementById('resetPreviewBtn');
+    const fillExampleBtn = document.getElementById('fillExampleBtn');
+    const responseMsgDiv = document.getElementById('responseMessage');
+
+    // Fungsi update preview secara realtime
+    function updatePreview() {
+        // Judul & deskripsi
+        let titleVal = titleInput.value.trim();
+        let descVal = descInput.value.trim();
+        previewTitleSpan.innerText = titleVal === "" ? "Judul Embed (Kosong)" : titleVal;
+        previewDescSpan.innerText = descVal === "" ? "Deskripsi embed akan tampil disini. Kamu bisa menambah informasi menarik." : descVal;
+
+        // Thumbnail logic
+        let thumbUrlVal = thumbInput.value.trim();
+        if (thumbUrlVal !== "" && isValidUrl(thumbUrlVal)) {
+            previewThumbImg.src = thumbUrlVal;
+            previewThumbImg.style.display = "inline-block";
+            previewThumbImg.onerror = () => { previewThumbImg.style.display = "none"; };
+        } else {
+            previewThumbImg.style.display = "none";
+        }
+
+        // Large image
+        let imageUrlVal = imageInput.value.trim();
+        if (imageUrlVal !== "" && isValidUrl(imageUrlVal)) {
+            previewImageImg.src = imageUrlVal;
+            previewImageImg.style.display = "block";
+            previewImageImg.onerror = () => { previewImageImg.style.display = "none"; };
+        } else {
+            previewImageImg.style.display = "none";
+        }
+
+        // Footer
+        let footerVal = footerInput.value.trim();
+        footerTextSpan.innerText = footerVal === "" ? "tidak ada footer" : footerVal;
+
+        // Mention preview indicator
+        if (mentionToggle.checked) {
+            mentionPreviewSpan.innerHTML = '<span class="mention-badge"><i class="fas fa-bullhorn"></i> @everyone/@here </span>';
+        } else {
+            mentionPreviewSpan.innerHTML = '';
+        }
+    }
+
+    // helper validasi URL sederhana
+    function isValidUrl(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    // Fungsi untuk membangun payload Discord (embed lengkap)
+    function buildPayload() {
+        let embedObj = {
+            title: titleInput.value.trim() || null,
+            description: descInput.value.trim() || null,
+            color: 0x5865F2, // warna biru discord
+        };
+        // thumbnail
+        let thumb = thumbInput.value.trim();
+        if (thumb && isValidUrl(thumb)) {
+            embedObj.thumbnail = { url: thumb };
+        }
+        // image
+        let img = imageInput.value.trim();
+        if (img && isValidUrl(img)) {
+            embedObj.image = { url: img };
+        }
+        // footer
+        let footerTextVal = footerInput.value.trim();
+        if (footerTextVal) {
+            embedObj.footer = { text: footerTextVal };
+        }
+        // hapus properti null supaya clean
+        Object.keys(embedObj).forEach(key => embedObj[key] === null && delete embedObj[key]);
+        
+        let payload = {
+            embeds: [embedObj]
+        };
+        // jika mention diaktifkan, tambahkan allowed_mentions
+        if (mentionToggle.checked) {
+            payload.allowed_mentions = { parse: ["everyone", "here"] };
+            // tambahkan konten opsional kosong agar mention bisa trigger? best practice: isi content bisa ada @everyone
+            // agar lebih eksplisit kita set content dengan mention jelas walaupun embed sudah cukup? discord butuh content untuk mention @everyone jika menggunakan allowed_mentions.
+            // untuk memastikan mention bekerja di embed, kita perlu set content minimal "@everyone" atau string dengan mention.
+            // menambahkan content dengan mention secara implisit meningkatkan probabilitas notifikasi.
+            payload.content = "@everyone Webhook embed dengan mention";
+        }
+        return payload;
+    }
+
+    // fungsi kirim webhook
+    async function sendWebhook() {
+        const url = webhookUrlInput.value.trim();
+        if (!url) {
+            responseMsgDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ❗ Webhook URL tidak boleh kosong!';
+            responseMsgDiv.style.borderLeftColor = "#f04747";
+            return;
+        }
+        if (!isValidUrl(url) || !url.includes("discord.com/api/webhooks")) {
+            responseMsgDiv.innerHTML = '<i class="fas fa-times-circle"></i> ⚠️ URL webhook tidak valid (harus discord.com/api/webhooks)';
+            responseMsgDiv.style.borderLeftColor = "#f04747";
+            return;
+        }
+        
+        const payload = buildPayload();
+        // jika tidak ada embed minimal (title & desc kosong) tetap kirim dengan embed kosong? tapi beri peringatan
+        if ((!payload.embeds[0].title && !payload.embeds[0].description) && (!thumbInput.value.trim() && !imageInput.value.trim())) {
+            responseMsgDiv.innerHTML = '<i class="fas fa-info-circle"></i> ℹ️ Embed kosong, kirim tetap diperbolehkan namun tidak ada konten menarik.';
+        }
+        
+        // Tampilkan loading
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="loading-spinner"></span> Mengirim...';
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                responseMsgDiv.innerHTML = '<i class="fas fa-check-circle"></i> ✅ Berhasil dikirim ke Discord! Embed terkirim.';
+                responseMsgDiv.style.borderLeftColor = "#23a55a";
+                // optional: bersihkan sedikit tidak perlu
+            } else {
+                const errorText = await response.text();
+                responseMsgDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ❌ Gagal (${response.status}): ${errorText.substring(0, 120)}`;
+                responseMsgDiv.style.borderLeftColor = "#f04747";
+            }
+        } catch (err) {
+            responseMsgDiv.innerHTML = `<i class="fas fa-bug"></i> ⚠️ Error jaringan: ${err.message}`;
+            responseMsgDiv.style.borderLeftColor = "#f04747";
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<i class="fab fa-discord"></i> Kirim ke Discord';
+            setTimeout(() => {
+                // setelah 4 detik kembalikan gaya normal tapi pesan tetap
+                setTimeout(() => {
+                    if (responseMsgDiv.innerHTML.includes("Berhasil")) {
+                        responseMsgDiv.style.borderLeftColor = "#5865f2";
+                    } else if (!responseMsgDiv.innerHTML.includes("Gagal")) {
+                        responseMsgDiv.style.borderLeftColor = "#5865f2";
+                    }
+                }, 2000);
+            }, 100);
+        }
+    }
+
+    // reset semua field form ke default dan preview kosong tapi tidak kosong total (placeholder)
+    function resetAllFields() {
+        titleInput.value = '';
+        descInput.value = '';
+        thumbInput.value = '';
+        imageInput.value = '';
+        footerInput.value = '';
+        mentionToggle.checked = false;
+        webhookUrlInput.value = '';
+        updatePreview();
+        responseMsgDiv.innerHTML = '✨ Semua form telah direset. Preview diperbarui.';
+        responseMsgDiv.style.borderLeftColor = "#5865f2";
+    }
+    
+    // contoh isi untuk demo menarik
+    function fillExample() {
+        titleInput.value = '✨ Galaxy Explorer ✨';
+        descInput.value = 'Webhook embed kaya dengan gaya modern. Tampilkan thumbnail, gambar besar, footer dinamis! Nikmati integrasi Discord yang stylish.';
+        thumbInput.value = 'https://cdn-icons-png.flaticon.com/512/5969/5969260.png';
+        imageInput.value = 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&auto=format';
+        footerInput.value = 'Powered by Webhook Forge • Discord API';
+        mentionToggle.checked = true;
+        webhookUrlInput.value = '';  // biarkan user memasukkan sendiri utk keamanan
+        updatePreview();
+        responseMsgDiv.innerHTML = '🎨 Contoh data dimuat! Jangan lupa masukkan Webhook URL milikmu sebelum kirim.';
+        responseMsgDiv.style.borderLeftColor = "#23a55a";
+        // scroll sedikit ke preview
+        document.querySelector('.preview-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Event listener untuk semua input + toggle realtime
+    function bindEvents() {
+        titleInput.addEventListener('input', updatePreview);
+        descInput.addEventListener('input', updatePreview);
+        thumbInput.addEventListener('input', updatePreview);
+        imageInput.addEventListener('input', updatePreview);
+        footerInput.addEventListener('input', updatePreview);
+        mentionToggle.addEventListener('change', updatePreview);
+        sendBtn.addEventListener('click', sendWebhook);
+        resetPreviewBtn.addEventListener('click', resetAllFields);
+        fillExampleBtn.addEventListener('click', fillExample);
+    }
+
+    // Initial preview
+    function init() {
+        bindEvents();
+        updatePreview();
+        // set contoh ringan tapi tidak isi form otomatis agar user bebas
+        responseMsgDiv.innerHTML = '🎯 Siap pakai. Buat embed kustom dan kirim ke webhook!';
+    }
+    init();
+</script>
+</body>
+</html>
